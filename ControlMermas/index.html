@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ControlMermas — Análisis de Pérdidas</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header class="app-header">
+    <a href="../index.html" style="color:inherit;text-decoration:none;opacity:.7;font-size:.85rem;white-space:nowrap;margin-right:var(--space-md)">← Volver</a>
+    <div class="app-header__brand">
+      <span class="app-header__brand-icon">📉</span>
+      <span>ControlMermas</span>
+    </div>
+  </header>
+
+  <nav class="app-tabs">
+    <button class="app-tab" data-tab="dashboard">📊 Dashboard</button>
+    <button class="app-tab" data-tab="registro">📝 Registro</button>
+    <button class="app-tab" data-tab="analisis">🤖 Análisis</button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD VIEW -->
+    <section class="app-view app-view--active" id="dashboard-view">
+      <div class="dashboard-summary" id="dashboard-summary"></div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card__title">Pérdidas por Categoría</div>
+          <canvas id="chart-categoria"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card__title">Tendencia Mensual</div>
+          <canvas id="chart-tendencia"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGISTRO VIEW -->
+    <section class="app-view" id="registro-view">
+      <div class="registro-toolbar">
+        <div class="registro-filters">
+          <select class="form-select" id="filtro-categoria" style="width:auto;min-width:130px"></select>
+          <select class="form-select" id="filtro-causa" style="width:auto;min-width:130px"></select>
+          <input type="date" class="form-input" id="filtro-fecha-desde" style="width:auto" title="Desde">
+          <input type="date" class="form-input" id="filtro-fecha-hasta" style="width:auto" title="Hasta">
+          <button class="btn btn--secondary btn--sm" id="btn-limpiar-filtros">✕ Limpiar</button>
+        </div>
+        <button class="btn btn--primary" id="btn-nueva-merma">➕ Nueva Merma</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Cantidad</th>
+              <th>Valor</th>
+              <th>Fecha</th>
+              <th>Causa</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="registro-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ANALISIS VIEW -->
+    <section class="app-view" id="analisis-view">
+      <div id="analisis-container"></div>
+    </section>
+  </main>
+
+  <!-- MODAL MERMA -->
+  <div class="modal-overlay" id="merma-modal">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="merma-modal-title">Nueva Merma</h2>
+        <button class="btn btn--secondary btn--sm" id="btn-cancelar-merma">✕</button>
+      </div>
+      <form class="modal__body" id="merma-form">
+        <input type="hidden" id="merma-id">
+        <div class="form-group">
+          <label class="form-label" for="merma-producto">Producto *</label>
+          <input class="form-input" type="text" id="merma-producto" placeholder="Nombre del producto" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="merma-categoria">Categoría</label>
+            <select class="form-select" id="merma-categoria"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="merma-causa">Causa</label>
+            <select class="form-select" id="merma-causa"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="merma-cantidad">Cantidad</label>
+            <input class="form-input" type="number" id="merma-cantidad" min="0" step="0.1" value="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="merma-unidad">Unidad</label>
+            <input class="form-input" type="text" id="merma-unidad" value="unidades" placeholder="kg, unidades, litros">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="merma-valor">Valor ($)</label>
+            <input class="form-input" type="number" id="merma-valor" min="0" step="1" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="merma-fecha">Fecha *</label>
+            <input class="form-input" type="date" id="merma-fecha" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="merma-hora">Hora</label>
+            <select class="form-select" id="merma-hora"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="merma-departamento">Departamento</label>
+            <select class="form-select" id="merma-departamento"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="merma-notas">Notas</label>
+          <textarea class="form-textarea" id="merma-notas" placeholder="Observaciones..." maxlength="300"></textarea>
+        </div>
+        <div class="modal__footer" style="padding:var(--space-md) 0 0">
+          <button type="button" class="btn btn--secondary" id="btn-cancelar-merma2">Cancelar</button>
+          <button type="submit" class="btn btn--primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/registro.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/analisis.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
